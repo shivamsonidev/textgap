@@ -1,35 +1,53 @@
-import CustomHead from '../components/Head'
+import React from "react"
 import Link from 'next/link'
-import styles from '../styles/Home.module.css'
-import { Pane, TextInputField, Button, Text } from 'evergreen-ui'
+import Image from 'next/image'
+import { Pane, TextInputField, Button, Text, toaster } from 'evergreen-ui'
+import {auth} from "../components/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+async function tryLogin(email,password) {
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      toaster.success("Logged In");
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      toaster.warning(errorCode, { description: errorMessage});
+    });
+}
 
 export default function Login() {
+  let [email, setEmail] = React.useState('')
+  let [password, setPassword] = React.useState('')
   return (
-    <Pane className={styles.container} background="gray50">
-      <CustomHead title="Login" />
-      <main className={styles.main}>
-        <Pane width={320}>
-            <Pane display="flex" alignContent="center" justifyContent="center">
-                <Pane width={100} backgroundImage="url('./logo.svg')" backgroundSize="cover" height={100} />
-            </Pane>
-            <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
-                <TextInputField
-                    id="username"
-                    label="Username or Email Address"
-                    required
-                />
-                <TextInputField
-                    id="password"
-                    label="Password"
-                    type="password"
-                    required
-                />
-                <Button height={40} appearance="primary" intent="none">Login</Button>
-            </Pane>
-            <Pane><Link href="/password-forgot"><a><Text>Lost your password?</Text></a></Link></Pane>
-            <Pane marginTop={10}><Link href="/"><a><Text>← Go to Website</Text></a></Link></Pane>
-        </Pane>
-      </main>
+    <Pane background="gray50" display="flex" alignContent="center" justifyContent="center" minHeight="100vh" paddingTop={60}>
+      <Pane width={320}>
+          <Pane display="flex" alignContent="center" justifyContent="center">
+            <Image src="/logo.svg" alt="Vercel Logo" width={100} height={100} />
+          </Pane>
+          <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
+              <TextInputField
+                  id="username"
+                  value={email}
+                  label="Email Address"
+                  type="email"
+                  onChange={(e)=>setEmail(e.target.value)}
+                  required
+              />
+              <TextInputField
+                  id="password"
+                  value={password}
+                  label="Password"
+                  type="password"
+                  onChange={(e)=>setPassword(e.target.value)}
+                  required
+              />
+              <Button onClick={()=>tryLogin(email,password)} height={40} appearance="primary" intent="none">Login</Button>
+          </Pane>
+          <Pane><Link href="/password-forgot"><a><Text>Lost your password?</Text></a></Link></Pane>
+          <Pane marginTop={10}><Link href="/"><a><Text>← Go to Website</Text></a></Link></Pane>
+      </Pane>
     </Pane>
   )
 }
