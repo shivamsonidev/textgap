@@ -2,18 +2,18 @@ import React from "react"
 import Link from 'next/link'
 import Image from 'next/image'
 import { Pane, TextInputField, Button, Text, toaster } from 'evergreen-ui'
-import {auth} from "../components/firebase";
+import { auth, authErrors } from "../components/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 async function tryLogin(email,password) {
+  !(email && password) ? toaster.warning('Please fill in the details') :
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       toaster.success("Logged In");
     })
     .catch((error) => {
       const errorCode = error.code;
-      const errorMessage = error.message;
-      toaster.warning(errorCode, { description: errorMessage});
+      toaster.warning(authErrors[errorCode]);
     });
 }
 
