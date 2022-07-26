@@ -34,7 +34,6 @@ async function trySignupWithPassword(email, password) {
 
 async function trySignupWithGoogle() {
   const provider = new GoogleAuthProvider();
-  provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 
   signInWithPopup(auth, provider)
   .then((result) => {
