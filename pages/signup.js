@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Pane, TextInputField, Button, Text, toaster, MobilePhoneIcon, DoughnutChartIcon } from "evergreen-ui";
 import { auth, authErrors } from "../components/firebase";
-import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
-async function trySignup(email, password) {
+async function trySignupWithPassword(email, password) {
   if (password.length < 8) {
     toaster.warning("Your password must be at least 8 characters"); 
     return false;
@@ -32,6 +32,22 @@ async function trySignup(email, password) {
       });
 }
 
+async function trySignupWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+  signInWithPopup(auth, provider)
+  .then((result) => {
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const token = credential.accessToken;
+    const user = result.user;
+    console.log(user.uid)
+    toaster.success("Signed up!");
+  }).catch((error) => {
+    toaster.warning(authErrors[error.code]);
+  });
+}
+
 export default function Signup() {
   let [email, setEmail] = React.useState("");
   let [password, setPassword] = React.useState("");
@@ -44,12 +60,9 @@ export default function Signup() {
         <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
           <TextInputField id="username" value={email} label="Email Address" type="email" onChange={(e) => setEmail(e.target.value)} required />
           <TextInputField id="password" value={password} label="Password" type="password" onChange={(e) => setPassword(e.target.value)} required />
-          <Button onClick={() => trySignup(email, password)} height={40} appearance="primary" intent="none">Signup</Button>
-          <Pane marginTop={30}>
-            <Link href="/signup-mobile"><Button iconBefore={MobilePhoneIcon} height={40} width="100%" intent="none">Signup through Phone</Button></Link>
-          </Pane>
+          <Button onClick={() => trySignupWithPassword(email, password)} height={40} width="100%" appearance="primary" intent="none">Signup</Button>
           <Pane marginTop={10}>
-            <Link href="/signup-google"><Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none">Signup through Google</Button></Link>
+            <Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none" onClick={()=>trySignupWithGoogle()}>Signup through Google</Button>
           </Pane>
         </Pane>
         <Pane display="flex" justifyContent="space-between">

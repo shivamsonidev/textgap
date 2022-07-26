@@ -30,11 +30,8 @@ export default function Login() {
         <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
           <TextInputField id="username" value={email} label="Email Address" type="email" onChange={(e) => setEmail(e.target.value)} required />
           <TextInputField id="password" value={password} label="Password" type="password" onChange={(e) => setPassword(e.target.value)} required />
-          <Button onClick={() => tryLogin(email, password)} height={40} appearance="primary" intent="none">Login</Button>
+          <Button onClick={() => tryLogin(email, password)} height={40} width="100%" appearance="primary" intent="none">Login</Button>
           <Pane marginTop={30}>
-            <Link href="/login-mobile"><Button iconBefore={MobilePhoneIcon} height={40} width="100%" intent="none">Login through Phone</Button></Link>
-          </Pane>
-          <Pane marginTop={10}>
             <Link href="/login-google"><Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none">Login through Google</Button></Link>
           </Pane>
         </Pane>
