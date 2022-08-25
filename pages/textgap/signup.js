@@ -4,7 +4,7 @@ import Image from "next/image";
 import Router from 'next/router'
 import { Pane, TextInputField, Button, Text, toaster, DoughnutChartIcon } from "evergreen-ui";
 import { auth, authErrors } from "components/firebase";
-import { createUserWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
 
 async function trySignupWithPassword(email, password) {
   if (password.length < 8) {
@@ -57,7 +57,7 @@ export default function Signup() {
     <Pane background="gray50" display="flex" alignContent="center" justifyContent="center" minHeight="100vh" paddingTop={60}>
       <Pane width={320}>
         <Pane display="flex" alignContent="center" justifyContent="center">
-          <Image src="/logo.svg" alt="Vercel Logo" width={100} height={100} onClick={()=>{signOut(auth);toaster.warning('Logged out')}} />
+          <Image src="/logo.svg" alt="Vercel Logo" width={100} height={100} />
         </Pane>
         <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
           <TextInputField id="username" value={email} label="Email Address" type="email" onChange={(e) => setEmail(e.target.value)} required />
