@@ -1,16 +1,7 @@
-import '../styles/globals.css'
-import {db, auth} from "../components/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import 'styles/globals.css'
 import Head from 'next/head'
 
 function MyApp({ Component, pageProps }) {
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      console.log(user.uid)
-    } else {
-      console.log('No user is logged in')
-    }
-  });
   return (
     <div>
       <Head>

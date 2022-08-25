@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Pane, TextInputField, Button, Text, toaster, MobilePhoneIcon, DoughnutChartIcon } from "evergreen-ui";
-import { auth, authErrors } from "../components/firebase";
-import { createUserWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import Router from 'next/router'
+import { Pane, TextInputField, Button, Text, toaster, DoughnutChartIcon } from "evergreen-ui";
+import { auth, authErrors } from "components/firebase";
+import { createUserWithEmailAndPassword, signOut, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
 
 async function trySignupWithPassword(email, password) {
   if (password.length < 8) {
@@ -26,6 +27,7 @@ async function trySignupWithPassword(email, password) {
         const user = userCredential.user;
         console.log(user.uid)
         toaster.success("Signed up!");
+        Router.push('/textgap')
       })
       .catch((error) => {
         toaster.warning(authErrors[error.code]);
@@ -42,6 +44,7 @@ async function trySignupWithGoogle() {
     const user = result.user;
     console.log(user.uid)
     toaster.success("Signed up!");
+    Router.push('/textgap')
   }).catch((error) => {
     toaster.warning(authErrors[error.code]);
   });
@@ -54,19 +57,19 @@ export default function Signup() {
     <Pane background="gray50" display="flex" alignContent="center" justifyContent="center" minHeight="100vh" paddingTop={60}>
       <Pane width={320}>
         <Pane display="flex" alignContent="center" justifyContent="center">
-          <Image src="/logo.svg" alt="Vercel Logo" width={100} height={100} onClick={()=>signOut(auth)} />
+          <Image src="/logo.svg" alt="Vercel Logo" width={100} height={100} onClick={()=>{signOut(auth);toaster.warning('Logged out')}} />
         </Pane>
         <Pane padding={30} marginY={30} border="default" width="100%" borderRadius={5} background="white">
           <TextInputField id="username" value={email} label="Email Address" type="email" onChange={(e) => setEmail(e.target.value)} required />
           <TextInputField id="password" value={password} label="Password" type="password" onChange={(e) => setPassword(e.target.value)} required />
           <Button onClick={() => trySignupWithPassword(email, password)} height={40} width="100%" appearance="primary" intent="none">Signup</Button>
-          <Pane marginTop={10}>
+          <Pane marginTop={30}>
             <Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none" onClick={()=>trySignupWithGoogle()}>Signup through Google</Button>
           </Pane>
         </Pane>
         <Pane display="flex" justifyContent="space-between">
-          <Link href="/password-forgot"><a><Text>Lost your password?</Text></a></Link>
-          <Link href="/login"><a><Text>Already a user?</Text></a></Link>
+          <Link href="/textgap/password-forgot"><a><Text>Lost your password?</Text></a></Link>
+          <Link href="/textgap/login"><a><Text>Already a user?</Text></a></Link>
         </Pane>
         <Pane marginTop={10}>
           <Link href="/"><a><Text>← Go to Website</Text></a></Link>
