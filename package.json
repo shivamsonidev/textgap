@@ -9,14 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@firebase/app": "^0.7.31",
+    "@firebase/auth": "^0.20.5",
+    "@firebase/firestore": "^3.4.14",
     "evergreen-ui": "^6.10.3",
-    "firebase": "^9.9.0",
     "next": "12.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
     "eslint": "8.20.0",
-    "eslint-config-next": "12.2.2"
+    "eslint-config-next": "12.2.2",
+    "typescript": "^4.7.4"
   }
 }
