@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Router from 'next/router'
 import { Pane, TextInputField, Button, Text, toaster, DoughnutChartIcon, Spinner } from "evergreen-ui";
-import { auth, authErrors, createAccount } from "components/firebase";
+import { auth, authErrors, createAccount, checkIfAccountExists, createDocument } from "components/firebase";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
 
 async function trySignupWithPassword(email, password) {
@@ -48,22 +48,24 @@ async function trySignupWithGoogle() {
   const provider = new GoogleAuthProvider();
 
   signInWithPopup(auth, provider)
-  .then(async(result) => {
+  .then(async (result) => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    // const token = credential.accessToken;
+    const token = credential.accessToken;
     const user = result.user;
-    console.log((user.uid, user.email))
+
     try {
-      const account = await createAccount(user.uid, user.email)
-      if(account) {
-        Router.push('/textgap')
-        toaster.success("Account created successfully");
+      const flag = await checkIfAccountExists(user.uid)
+      if(!flag) {
+        await createDocument(user.uid, user.email)
       }
-      else {}
+      Router.push('/textgap')
+      toaster.success("Account created successfully");
     }
-    catch(err) {
-      toaster.warning(err)
+    catch (err) {
+      toaster.warning("Could not connect to database")
     }
+
+    toaster.success("Logged in");
   }).catch((error) => {
     toaster.warning(authErrors[error.code]);
   });

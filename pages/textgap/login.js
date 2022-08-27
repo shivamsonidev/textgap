@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Router from 'next/router'
 import { Pane, TextInputField, Button, Text, toaster, DoughnutChartIcon } from "evergreen-ui";
-import { auth, authErrors } from "components/firebase";
+import { auth, authErrors, checkIfAccountExists, createDocument } from "components/firebase";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "@firebase/auth";
 
 async function tryLogin(email, password) {
@@ -20,15 +20,27 @@ async function tryLogin(email, password) {
         });
 }
 
-async function tryLoginWithGoogle() {
+async function trySignupWithGoogle() {
   const provider = new GoogleAuthProvider();
 
   signInWithPopup(auth, provider)
-  .then((result) => {
+  .then(async (result) => {
     const credential = GoogleAuthProvider.credentialFromResult(result);
     const token = credential.accessToken;
     const user = result.user;
-    console.log(user.uid)
+
+    try {
+      const flag = await checkIfAccountExists(user.uid)
+      if(!flag) {
+        await createDocument(user.uid, user.email)
+      }
+      Router.push('/textgap')
+      toaster.success("Account created successfully");
+    }
+    catch (err) {
+      toaster.warning("Could not connect to database")
+    }
+
     toaster.success("Logged in");
   }).catch((error) => {
     toaster.warning(authErrors[error.code]);
@@ -49,7 +61,7 @@ export default function Login() {
           <TextInputField id="password" value={password} label="Password" type="password" onChange={(e) => setPassword(e.target.value)} required />
           <Button onClick={() => tryLogin(email, password)} height={40} width="100%" appearance="primary" intent="none">Login</Button>
           <Pane marginTop={30}>
-            <Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none" onClick={()=>tryLoginWithGoogle()}>Login through Google</Button>
+            <Button iconBefore={DoughnutChartIcon} height={40} width="100%" intent="none" onClick={()=>trySignupWithGoogle()}>Login through Google</Button>
           </Pane>
         </Pane>
         <Pane display="flex" justifyContent="space-between">

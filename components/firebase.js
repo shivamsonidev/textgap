@@ -164,23 +164,32 @@ async function checkIfAccountExists(uid) {
   return false
 }
 
+async function createDocument(uid, email) {
+  try {
+    await setDoc(doc(db, "accounts", uid), {
+      settings: {
+        email: email,
+        id: uid,
+        siteUrl: "",
+        siteTitle: "",
+        siteTagline: "",
+        createdAt: Timestamp.fromDate(new Date()),
+        modifiedAt: Timestamp.fromDate(new Date())
+      },
+      invoices: null
+    });
+    return true
+  }
+  catch (err) {
+    throw "Could not connect to database"
+  }
+}
+
 async function createAccount(uid, email){
   try {
     const flag = await checkIfAccountExists(uid)
     if(!flag) {
-      await setDoc(doc(db, "accounts", uid), {
-        settings: {
-          email: email,
-          id: uid,
-          siteUrl: "",
-          siteTitle: "",
-          siteTagline: "",
-          createdAt: Timestamp.fromDate(new Date()),
-          modifiedAt: Timestamp.fromDate(new Date())
-        },
-        invoices: null
-      });
-      return true
+      await createDocument(uid, email)
     }
     else {
       throw 'Account Found'
@@ -191,4 +200,4 @@ async function createAccount(uid, email){
   }
 }
 
-export {db, auth, authErrors, checkIfAccountExists, createAccount }
+export {db, auth, authErrors, checkIfAccountExists, createAccount, createDocument }

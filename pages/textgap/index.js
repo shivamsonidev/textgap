@@ -1,10 +1,11 @@
 import React from "react";
-import { Pane, Text, Button, DocumentIcon, PageLayoutIcon, VideoIcon, SettingsIcon, LogOutIcon, toaster } from "evergreen-ui";
 import Image from "next/image";
+import Router from 'next/router'
+import { Pane, Text, Button, DocumentIcon, PageLayoutIcon, VideoIcon, SettingsIcon, LogOutIcon, toaster } from "evergreen-ui";
 import { auth, checkIfAccountExists } from "components/firebase";
 import { onAuthStateChanged, signOut } from "@firebase/auth";
 
-export default function Home() {
+function Home() {
 
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [companyIndex, setCompanyIndex] = React.useState("")
@@ -30,26 +31,6 @@ export default function Home() {
       icon: SettingsIcon
     },
   ])
-
-  React.useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        if (typeof window !== "undefined") {
-          window.location.href = '/textgap/login'
-        }
-      }
-      else {
-        checkIfAccountExists(user.uid)
-        .then(result => result 
-          ? toaster.warning(`Hello again ${user.uid}`) 
-          : function() {
-            signOut(auth);
-            toaster.warning('Logged out')
-          })
-      }
-    });
-
-  })
 
   return (
     <Pane display="flex" minHeight="100vh" flex-direction="column">
@@ -95,5 +76,29 @@ export default function Home() {
       </Pane>
 
     </Pane>
+  )
+
+}
+
+export default function TextGapAdmin() {
+
+  React.useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        if (typeof window !== "undefined") {
+          Router.push('/textgap/login')
+          window.location.href = '/textgap/login'
+        }
+      }
+      else {
+        checkIfAccountExists(user.uid)
+        .then(result => !result && signOut(auth))
+      }
+    });
+
+  })
+
+  return (
+    <Home />
   )
 }
