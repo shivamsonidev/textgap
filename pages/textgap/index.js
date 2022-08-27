@@ -1,23 +1,13 @@
 import React from "react";
-import Link from "next/link";
 import { Pane, Text, Button, DocumentIcon, PageLayoutIcon, VideoIcon, SettingsIcon, LogOutIcon, toaster } from "evergreen-ui";
 import Image from "next/image";
-import {db, auth} from "components/firebase";
+import { auth, checkIfAccountExists } from "components/firebase";
 import { onAuthStateChanged, signOut } from "@firebase/auth";
 
 export default function Home() {
 
-  React.useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        if (typeof window !== "undefined") {
-          window.location.href = '/textgap/login'
-        }
-      }
-    });
-  })
-
   const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [companyIndex, setCompanyIndex] = React.useState("")
   const [tabs] = React.useState([
     {
       page: <div>x</div>,
@@ -41,13 +31,33 @@ export default function Home() {
     },
   ])
 
+  React.useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        if (typeof window !== "undefined") {
+          window.location.href = '/textgap/login'
+        }
+      }
+      else {
+        checkIfAccountExists(user.uid)
+        .then(result => result 
+          ? toaster.warning(`Hello again ${user.uid}`) 
+          : function() {
+            signOut(auth);
+            toaster.warning('Logged out')
+          })
+      }
+    });
+
+  })
+
   return (
     <Pane display="flex" minHeight="100vh" flex-direction="column">
 
-      <Pane padding={15} borderRight="default" background="tint2" width="10%" minWidth="100">
+      <Pane padding={15} borderRight="default" background="gray50" width="10%" minWidth="100">
         <Pane display="flex" alignContent="center" gap={10} borderBottom="default" marginBottom={20} paddingBottom={20}>
           <Image src="/logo.svg" alt="Vercel Logo" width={30} height={30} />
-          <Text size={500} alignSelf="center"><b>Textgap</b></Text>
+          <Text size={500} alignSelf="center" color="#184b8f"><b>Textgap</b></Text>
         </Pane>
         {tabs.map((tab, index) => (
           <Button
@@ -64,6 +74,7 @@ export default function Home() {
           </Button>
         ))}
         <Button appearance="minimal" width="100%" justifyContent="start" iconBefore={LogOutIcon} onClick={()=>{signOut(auth);toaster.warning('Logged out')}}>Logout</Button>
+        <Text>{companyIndex}</Text>
       </Pane>
 
       <Pane>

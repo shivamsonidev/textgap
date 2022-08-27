@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from "@firebase/app"
-import { getFirestore } from "@firebase/firestore"
+import { getFirestore, doc, getDoc, setDoc, addDoc, Timestamp } from "@firebase/firestore"
 import { getAuth } from "@firebase/auth"
+import { toaster } from "evergreen-ui";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -151,4 +152,43 @@ const authErrors = {
   "auth/already-initialized": "initializeAuth() has already been called with different options. To avoid this error, call initializeAuth() with the same options as when it was originally called, or call getAuth() to return the already initialized instance."
 }
 
-export {db, auth, authErrors}
+async function checkIfAccountExists(uid) {
+  try {
+    const docRef = doc(db, "accounts", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists()
+  } 
+  catch (err) {
+    toaster.warning("Main Database Is Down", { description: err });
+  }
+  return false
+}
+
+async function createAccount(uid, email){
+  try {
+    const flag = await checkIfAccountExists(uid)
+    if(!flag) {
+      await setDoc(doc(db, "accounts", uid), {
+        settings: {
+          email: email,
+          id: uid,
+          siteUrl: "",
+          siteTitle: "",
+          siteTagline: "",
+          createdAt: Timestamp.fromDate(new Date()),
+          modifiedAt: Timestamp.fromDate(new Date())
+        },
+        invoices: null
+      });
+      return true
+    }
+    else {
+      throw 'Account Found'
+    }
+  }
+  catch (err) {
+    throw "Could'nt connect to database"
+  }
+}
+
+export {db, auth, authErrors, checkIfAccountExists, createAccount }
