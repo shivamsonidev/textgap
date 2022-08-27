@@ -176,7 +176,19 @@ async function createDocument(uid, email) {
         createdAt: Timestamp.fromDate(new Date()),
         modifiedAt: Timestamp.fromDate(new Date())
       },
-      invoices: null
+      invoices: null,
+      posts: [
+        {
+          title: "Hello World",
+          content: {},
+          slug: "hello-world",
+          createdAt: Timestamp.fromDate(new Date()),
+          modifiedAt: Timestamp.fromDate(new Date()),
+          status: "publish"
+        }
+      ],
+      categories:[],
+      tags: []
     });
     return true
   }
@@ -200,4 +212,15 @@ async function createAccount(uid, email){
   }
 }
 
-export {db, auth, authErrors, checkIfAccountExists, createAccount, createDocument }
+async function readAccount(uid) {
+  try {
+    const docRef = doc(db, "accounts", uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data()
+  } 
+  catch (err) {
+    toaster.warning("Main Database Is Down", { description: err });
+  }
+}
+
+export {db, auth, authErrors, checkIfAccountExists, createAccount, createDocument, readAccount }
